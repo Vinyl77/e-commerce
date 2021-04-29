@@ -13,16 +13,24 @@ router.get('/', async (req, res) => {
     {
       include: {
         model: Product,
-        attributes: ['product_name']
+        attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
 
       }
-    }
-   )
-   .then(categoryData=> res.json(categoryData))
-   .catch(err=>{
-     console.log(err);
-     res.status(500).json(err);
-   });
+    })
+    .then(dbCatData => {
+      if(!dbCatData) {
+        res.status(404).json({message: 'No categories found'});
+        return;
+      }
+      res.json(dbCatData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err)
+    });
+   
+
+ 
 });
 
 router.get('/:id', (req, res) => {
@@ -34,15 +42,21 @@ router.get('/:id', (req, res) => {
     },
     include:{
       model: Product,
-      attributes: ['category_id']
+      attributes:  ['id', 'product_name', 'price', 'stock', 'category_id']
     }
   })
-  .then(categoryData => res.json(categoryData))
-  .catch(err=>{
+  .then(dbCatData => {
+    if(!dbCatData) {
+      res.status(404).json({message: 'No categories found'});
+      return;
+    }
+    res.json(dbCatData);
+  })
+  .catch(err => {
     console.log(err);
-    res.status(500).json(err);
-
+    res.status(500).json(err)
   });
+ 
 });
 
 router.post('/', (req, res) => {
@@ -50,35 +64,32 @@ router.post('/', (req, res) => {
   Category.create({
     category_name: req.body.category_name
   })
-  .then(categoryData=> res.json(categoryData))
+  .then(dbCatData=> res.json(dbCatData))
   .catch(err=>{
     console.log(err);
     res.status(500).json(err);
-  })
+  });
 });
 
 router.put('/:id', (req, res) => {
   // update a category by its `id` value
-  Category.update(
-    {
-    category_name: req.body.category_name
-    },
-    {
-      where:{
-        id: req.params.id
+  Category.update(req.body, {
+    where: {
+      id: req.params.id
+    }
+  })
+    .then(dbCatData => {
+      if (!dbCatData) {
+        res.status(404).json({message:'No category found with this id'});
+        return;
       }
+      res.json(dbCatData);
     })
-    .then(categoryData=>{
-      if (!categoryData){
-        res.status(404).json({ message: 'No Category found with that ID.' });
-        return
-      }
-      res.json(categoryData);
-    })
-    .catch (err=>{
+    .catch(err => {
       console.log(err);
       res.status(500).json(err);
     });
+  
   
 
 });
@@ -90,12 +101,12 @@ router.delete('/:id', (req, res) => {
       id: req.params.id
     }
   })
-  .then(categoryData=>{
-    if(!categoryData){
+  .then(dbCatData=>{
+    if(!dbCatData){
       res.status(404).json({ message: 'No Category found with that ID.' });
       return;
     }
-    res.json(categoryData);
+    res.json(dbCatData);
   })
   .catch(err=>{
     console.log(err);
