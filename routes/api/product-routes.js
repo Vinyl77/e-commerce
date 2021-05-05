@@ -20,10 +20,10 @@ router.get('/', (req, res) => {
       }
     ]
   })
-    .then(productData => res.json(productData))
+    .then(productData => res.status(200).json(productData))
     .catch(err => {
       console.log(err);
-      res.status(500).json(err);
+      res.status(400).json(err);
     });
  
 });
@@ -51,13 +51,14 @@ router.get('/:id', (req, res) => {
     .then(productData => {
       if (!productData) {
         res.status(404).json({message: 'No product found with this id'});
-        return;
+        
+      }else{
+      res.status(200).json(productData);
       }
-      res.json(productData);
     })
     .catch(err => {
       console.log(err);
-      res.status(500).json(err);
+      res.status(400).json(err);
     });
 
  
